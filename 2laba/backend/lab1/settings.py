@@ -92,8 +92,8 @@ DATABASES = {
         'NAME': 'lab1_db', #название базы данных
         'USER': 'django', #внутренний пользователь бд
         'PASSWORD': 'django_password', #пароль этого пользователя
-        #'HOST': 'postgres-service',
-        'HOST': 'localhost',
+        'HOST': 'postgres-service',
+        #'HOST': 'localhost',
         'PORT': 5432,        
     }
     
