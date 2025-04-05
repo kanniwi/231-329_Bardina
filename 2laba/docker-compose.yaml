@@ -1,0 +1,95 @@
+name: lab2-arc
+services:
+
+  postgres-service:
+    container_name: postgres-container
+    image: postgres:17-alpine
+    ports:
+      - 1234:5432
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    
+  backend-service:
+    container_name: backend-container
+    image: backend-image
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    working_dir: /backend
+    # ports:
+    #   - 8000:8000
+    restart: unless-stopped
+    command: >
+      sh -c "
+      gunicorn lab1.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - staticfiles-volume:/staticfiles
+    depends_on:
+      postgres-service:
+        condition: service_started
+      backend-provision-service:
+        condition: service_completed_successfully
+
+  backend-provision-service:
+    container_name: backend-provision-container
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend-image
+    working_dir: /backend
+    # ports:
+    #   - 8000:8000
+    restart: no
+    command: >
+      sh -c "
+      python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput
+      "
+    volumes:
+      - staticfiles-volume:/staticfiles
+    depends_on:
+      postgres-service:
+        condition: service_started
+
+  backend-init-service:
+    container_name: backend-init-container
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend-image
+    working_dir: /backend
+    restart: "no"  
+    command: >
+      sh -c "
+      python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput &&
+      python init_db.py"  
+    volumes:
+      - staticfiles-volume:/staticfiles
+    depends_on:
+      postgres-service:
+        condition: service_started
+
+  nginx-service:
+    container_name: nginx-container
+    restart: unless-stopped
+    image: nginx-image
+    ports:
+      - 80:80
+      - 443:443
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    volumes:
+      - staticfiles-volume:/static
+    depends_on:
+      backend-service:
+        condition: service_started
+
+        
+volumes:
+  staticfiles-volume:
+  postgres-data: 

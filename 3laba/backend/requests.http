@@ -1,0 +1,48 @@
+@hostname = http://localhost:8000
+
+### 
+GET {{hostname}}/historicalEvents/1014/
+Content-Type: application/json
+
+### 
+GET {{hostname}}/historicalEvents/
+Content-Type: application/json
+
+###
+DELETE {{hostname}}/historicalEvents/12/
+Content-Type: application/json
+
+#/api/historicalEvents/1016/
+### update
+PUT {{hostname}}/historicalEvents/1016/
+Content-Type: application/json
+
+{
+    "start_date": "1025-02-15",
+    "end_date": "1035-03-20",
+    "title": "Discovery",
+    "category": "science",
+    "is_peaceful": true
+}
+
+### partial update
+PATCH {{hostname}}/historicalEvents/2/
+Content-Type: application/json
+
+{
+    "end_date": "2025-02-03",
+    "title": "Experience"
+}
+
+
+### create
+POST {{hostname}}/historicalEvents/
+Content-Type: application/json
+
+{
+    "start_date": "1025-02-15",
+    "end_date": "1035-03-20",
+    "title": "AAA",
+    "category": "science",
+    "is_peaceful": true
+}
